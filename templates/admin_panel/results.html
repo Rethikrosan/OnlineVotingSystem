@@ -1,0 +1,205 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2 class="text-white mb-4">
+        Election Results
+    </h2>
+
+    <a href="{% url 'export_results_pdf' %}" class="btn btn-danger mb-3">
+        Export PDF
+    </a>
+
+    <!-- TABULATION -->
+
+    <h4 class="text-white">Vote Count</h4>
+
+    <table class="table table-bordered table-light">
+
+        <thead class="table-dark">
+            <tr>
+                <th>Candidate</th>
+                <th>Position</th>
+                <th>Total Votes</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for c in candidates %}
+
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.position }}</td>
+                <td>{{ c.total_votes }}</td>
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="3" class="text-center">
+                    No candidates available.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <h3 class="text-white mt-5">
+    Vote Distribution
+    </h3>
+
+    <div class="card p-3">
+        <canvas id="voteChart"></canvas>
+    </div>
+
+    <!-- WINNERS -->
+
+    <h3 class="text-white">
+        Winners
+    </h3>
+
+    <table class="table table-success table-bordered">
+
+        <thead>
+
+            <tr>
+                <th>Position</th>
+                <th>Winner(s)</th>
+                <th>Total Votes</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for position, winners in position_winners.items %}
+
+            <tr>
+
+                <td>{{ position }}</td>
+
+                <td>
+
+                    {% for winner in winners %}
+
+                        {{ winner.name }}
+
+                        {% if not forloop.last %}
+                            ,
+                        {% endif %}
+
+                    {% endfor %}
+
+                </td>
+
+                <td>{{ winners.0.total_votes }}</td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="3" class="text-center">
+                    No winners yet.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <!-- STUDENT DETAILS -->
+
+    <h3 class="text-white">
+        Student Voting Details
+    </h3>
+
+    <table class="table table-striped table-light table-bordered">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>Roll Number</th>
+                <th>Student Name</th>
+                <th>Position</th>
+                <th>Voted Candidate</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for vote in votes %}
+
+            <tr>
+
+                <td>{{ vote.student.roll_number }}</td>
+                <td>{{ vote.student.name }}</td>
+                <td>{{ vote.position }}</td>
+                <td>{{ vote.candidate.name }}</td>
+
+            </tr>
+
+        {% empty %}
+
+            <tr>
+                <td colspan="4" class="text-center">
+                    No votes have been cast.
+                </td>
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('voteChart');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [
+            {% for label in labels %}
+                "{{ label }}",
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Votes',
+            data: [
+                {% for v in vote_data %}
+                    {{ v }},
+                {% endfor %}
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

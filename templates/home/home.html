@@ -1,0 +1,47 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block content %}
+
+<div class="hero-section">
+
+    <div class="glass-card">
+
+        <div class="text-center">
+
+            <h3 class="mb-4">
+
+                Welcome
+
+            </h3>
+
+            <p>
+
+                Select your portal to continue.
+
+            </p>
+
+        </div>
+
+        <a href="{% url 'student_login' %}"
+   class="btn btn-student w-100 mt-3">
+
+    <i class="bi bi-person-circle"></i>
+    Student Login
+</a>
+
+<a href="{% url 'admin_login' %}"
+   class="btn btn-admin w-100 mt-3">
+
+    <i class="bi bi-shield-lock"></i>
+    Admin Login
+</a>
+
+    </div>
+
+</div>
+
+{% endblock %}

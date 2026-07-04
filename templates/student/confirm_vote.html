@@ -1,0 +1,84 @@
+{% extends 'base/base.html' %}
+
+{% block title %}
+Confirm Vote
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="text-center mb-4">
+            Confirm Your Vote
+        </h2>
+
+        <table class="table table-bordered">
+
+            <thead>
+
+                <tr>
+                    <th>Position</th>
+                    <th>Selected Candidate</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for item in selected_candidates %}
+
+                <tr>
+
+                    <td>{{ item.position }}</td>
+
+                    <td>
+
+                        <img src="{{ item.candidate.photo.url }}"
+                             width="70"
+                             class="me-3">
+
+                        {{ item.candidate.name }}
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <div class="text-center">
+
+            <a href="/student-candidates/?step=0"
+               class="btn btn-secondary">
+
+                Back
+
+            </a>
+
+            <form method="POST"
+                  action="{% url 'submit_vote' %}"
+                  style="display:inline;">
+
+                {% csrf_token %}
+
+                <button
+                    class="btn btn-success">
+
+                    Submit Vote
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

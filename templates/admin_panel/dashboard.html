@@ -1,0 +1,150 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2 class="text-white mb-4">
+        Admin Dashboard
+    </h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Statistics -->
+
+    <div class="row">
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white text-center shadow">
+                <div class="card-body">
+                    <h5>Total Students</h5>
+                    <h2>{{ total_students }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white text-center shadow">
+                <div class="card-body">
+                    <h5>Votes Cast</h5>
+                    <h2>{{ voted_students }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark text-center shadow">
+                <div class="card-body">
+                    <h5>Total Candidates</h5>
+                    <h2>{{ total_candidates }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white text-center shadow">
+                <div class="card-body">
+                    <h5>Voting %</h5>
+                    <h2>{{ voting_percentage }}%</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Election Status -->
+
+    <div class="card mt-3 text-center {% if election.is_active %}bg-success{% else %}bg-secondary{% endif %} text-white shadow">
+        <div class="card-body">
+            <h4>Election Status</h4>
+
+            {% if election.is_active %}
+                <h2>ACTIVE</h2>
+            {% else %}
+                <h2>INACTIVE</h2>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Administrator Profile -->
+
+    <div class="card shadow mt-4 mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Administrator Profile</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <strong>Username</strong><br>
+                    {{ admin_user.username }}
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Email</strong><br>
+                    {{ admin_user.email }}
+                </div>
+
+                <div class="col-md-4">
+                    <strong>Last Login</strong><br>
+                    {{ admin_user.last_login|date:"d M Y - h:i A" }}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+
+    <div class="mt-4">
+
+        <a href="{% url 'add_candidate' %}" class="btn btn-primary">
+            Add Candidate
+        </a>
+
+        <a href="{% url 'candidate_list' %}" class="btn btn-info">
+            View Candidates
+        </a>
+
+        <a href="{% url 'import_students' %}" class="btn btn-secondary">
+            Import Students
+        </a>
+
+        <a href="{% url 'results' %}" class="btn btn-dark">
+            View Results
+        </a>
+
+    </div>
+
+    <hr>
+
+    <h4 class="text-white">
+        Election Control
+    </h4>
+
+    <a href="{% url 'start_election' %}" class="btn btn-success">
+        Start Election
+    </a>
+
+    <a href="{% url 'end_election' %}" class="btn btn-danger">
+        End Election
+    </a>
+
+    <a href="{% url 'reset_election' %}"
+       class="btn btn-warning"
+       onclick="return confirm('Reset the election? All votes will be deleted.')">
+        Reset Election
+    </a>
+
+</div>
+
+{% endblock %}

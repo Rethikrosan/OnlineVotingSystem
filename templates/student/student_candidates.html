@@ -1,0 +1,83 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+<h2 class="text-white text-center">
+
+{{ position }}
+
+</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+{% for candidate in candidates %}
+
+<div class="card mt-3">
+
+<div class="card-body">
+
+<input
+    type="radio"
+    name="candidate"
+    value="{{ candidate.id }}"
+    {% if selected_candidate|stringformat:"s" == candidate.id|stringformat:"s" %}
+        checked
+    {% endif %}
+>
+
+<img src="{{ candidate.photo.url }}"
+width="80">
+
+<strong>
+
+{{ candidate.name }}
+
+</strong>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+<div class="mt-4">
+
+{% if step > 0 %}
+
+<a
+href="?step={{ step|add:'-1' }}"
+class="btn btn-secondary">
+
+Back
+
+</a>
+
+{% endif %}
+
+<button
+type="submit"
+class="btn btn-primary float-end">
+
+{% if step == last_step %}
+
+Finish
+
+{% else %}
+
+Next
+
+{% endif %}
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <h2 class="text-white">Manage Candidates</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <table class="table table-bordered mt-3">
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Photo</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for c in candidates %}
+
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.position }}</td>
+                <td>
+                    <img src="{{ c.photo.url }}" width="80">
+                </td>
+                <td>
+                    <a href="{% url 'delete_candidate' c.id %}" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
