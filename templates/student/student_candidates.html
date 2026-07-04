@@ -29,7 +29,9 @@
     {% endif %}
 >
 
-<img src="{{ candidate.photo.url }}"
+{% load static %}
+
+<img src="{% static candidate.photo %}" width="80">
 width="80">
 
 <strong>
