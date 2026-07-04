@@ -25,4 +25,7 @@ class CandidateForm(forms.Form):
     ("Brand Ambassador", "Brand Ambassador"),
 ]
     )
-    photo = forms.ImageField()
+    photo = forms.CharField(
+    max_length=200,
+    help_text="Example: candidates/vijay.jpg"
+)
