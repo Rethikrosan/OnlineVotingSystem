@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -33,8 +34,7 @@
                 <td>{{ c.name }}</td>
                 <td>{{ c.position }}</td>
                 <td>
-                    {% load static %}
-                    <img src="{% static candidate.photo %}" width="80">
+                    <img src="{% static c.photo %}" width="80">
                 </td>
                 <td>
                     <a href="{% url 'delete_candidate' c.id %}" class="btn btn-danger btn-sm">Delete</a>
