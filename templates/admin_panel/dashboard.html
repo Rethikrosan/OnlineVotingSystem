@@ -72,37 +72,44 @@
         </div>
     </div>
 
-    <!-- Administrator Profile -->
+   <!-- Administrator Profile -->
 
-    <div class="card shadow mt-4 mb-4">
-        <div class="card-header bg-dark text-white">
-            <h5 class="mb-0">Administrator Profile</h5>
-        </div>
+<div class="card shadow mt-4 mb-4">
+    <div class="card-header bg-dark text-white">
+        <h5 class="mb-0">Administrator Profile</h5>
+    </div>
 
-        <div class="card-body">
+    <div class="card-body">
 
-            <div class="row">
+        <div class="row">
 
-                <div class="col-md-4">
-                    <strong>Username</strong><br>
-                    {{ admin_user.username }}
-                </div>
+            <div class="col-md-4">
+                <strong>Username</strong><br>
+                {{ user.username }}
+            </div>
 
-                <div class="col-md-4">
-                    <strong>Email</strong><br>
-                    {{ admin_user.email }}
-                </div>
+            <div class="col-md-4">
+                <strong>Email</strong><br>
+                {% if user.email %}
+                    {{ user.email }}
+                {% else %}
+                    Not Available
+                {% endif %}
+            </div>
 
-                <div class="col-md-4">
-                    <strong>Last Login</strong><br>
-                    {{ admin_user.last_login|date:"d M Y - h:i A" }}
-                </div>
-
+            <div class="col-md-4">
+                <strong>Last Login</strong><br>
+                {% if user.last_login %}
+                    {{ user.last_login|date:"d M Y - h:i A" }}
+                {% else %}
+                    Never Logged In
+                {% endif %}
             </div>
 
         </div>
-    </div>
 
+    </div>
+</div>
     <!-- Quick Actions -->
 
     <div class="mt-4">
