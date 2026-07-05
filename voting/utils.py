@@ -12,12 +12,14 @@ def import_students(file):
         name = str(row["Name"])
         dob = str(row["DOB"])
 
-        if not Student.objects.filter(roll_number=roll).exists():
-            Student.objects.create(
-                roll_number=roll,
-                name=name,
-                password=make_password(dob)
-            )
-            count += 1
+        Student.objects.update_or_create(
+            roll_number=roll,
+            defaults={
+                "name": name,
+                "password": make_password(dob),
+            }
+        )
+
+        count += 1
 
     return count
