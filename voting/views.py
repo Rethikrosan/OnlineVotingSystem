@@ -310,12 +310,23 @@ def student_candidates(request):
         messages.error(request, "Election is not active.")
         return redirect("home")
 
-    positions = list(
-        Candidate.objects.values_list(
-            "position",
-            flat=True
-        ).distinct()
-    )
+    position_order = [
+    "President",
+    "Vice President",
+    "Secretary",
+    "Joint Secretary",
+    "Treasurer",
+    "Cultural",
+    "Placement",
+    "Brand Ambassador",
+    ]
+
+    # Only include positions that actually have candidates
+    positions = [
+        position
+        for position in position_order
+        if Candidate.objects.filter(position=position).exists()
+    ]
 
     if not positions:
         messages.error(request, "No candidates available.")
