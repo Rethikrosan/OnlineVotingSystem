@@ -259,13 +259,27 @@ def end_election(request):
 
     return redirect("admin_dashboard")
 
-#Guideliness
+# ===========================
+# ELECTION GUIDELINES
+# ===========================
 
 def election_guidelines(request):
 
-    if "student_id" not in request.session:
+    # Check if student is logged in
+    student_id = request.session.get("student_id")
+
+    if not student_id:
         return redirect("student_login")
 
+    # Get student details
+    student = get_object_or_404(Student, id=student_id)
+
+    # If already voted, send back to home page
+    if student.has_voted:
+        messages.error(request, "You have already voted.")
+        return redirect("home")
+
+    # Continue to candidate page after clicking the button
     if request.method == "POST":
         return redirect("student_candidates")
 
