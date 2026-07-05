@@ -1,4 +1,5 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -20,8 +21,8 @@
 
         <thead class="table-dark">
             <tr>
-                <th>Candidate</th>
                 <th>Position</th>
+                <th>Winner(s)</th>
                 <th>Total Votes</th>
             </tr>
         </thead>
@@ -72,39 +73,43 @@
 
             <tr>
                 <th>Position</th>
+                <th>Photo</th>
                 <th>Winner(s)</th>
                 <th>Total Votes</th>
             </tr>
-
         </thead>
 
         <tbody>
 
-        {% for position, winners in position_winners.items %}
+            {% for position, winners in position_winners.items %}
 
             <tr>
 
                 <td>{{ position }}</td>
 
                 <td>
-
                     {% for winner in winners %}
-
-                        {{ winner.name }}
-
-                        {% if not forloop.last %}
-                            ,
-                        {% endif %}
-
+                    <img src="/static/{{ winner.photo }}" width="70" height="70"
+                    style="object-fit:cover; border-radius:50%;">
+                    {% if not forloop.last %}
+                    <br><br>
+                    {% endif %}
                     {% endfor %}
+                </td>
 
+                <td>
+                    {% for winner in winners %}
+                    {{ winner.name }}
+                    {% if not forloop.last %}
+                    <br>
+                    {% endif %}
+                    {% endfor %}
                 </td>
 
                 <td>{{ winners.0.total_votes }}</td>
 
             </tr>
-
-        {% empty %}
+            {% empty %}
 
             <tr>
                 <td colspan="3" class="text-center">
@@ -170,14 +175,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('voteChart');
+    const ctx = document.getElementById('voteChart');
 
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: [
-            {% for label in labels %}
-                "{{ label }}",
+    new Chart(ctx, {
+        type: 'bar',
+            data: {
+            labels: [
+                {% for label in labels %}
+                    "{{ label }}",
             {% endfor %}
         ],
         datasets: [{
