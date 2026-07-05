@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white text-center">
+            <h2>Welcome to KPR Elect!</h2>
+        </div>
+
+        <div class="card-body">
+
+            <p class="lead">
+                <strong>KPR Elect</strong> is the official online platform for conducting
+                student council elections. Every vote contributes to selecting responsible
+                student leaders who will represent and serve the student community.
+                Your vote is secure, confidential, and important.
+                Please read the election guidelines carefully before proceeding.
+            </p>
+
+            <hr>
+
+            <h4>Election Guidelines</h4>
+
+            <ul>
+                <li>Every student can vote <strong>only once</strong>.</li>
+                <li>Your vote is <strong>confidential and secure</strong>.</li>
+                <li>Select <strong>one candidate</strong> for each position.</li>
+                <li>Once your vote is submitted, it <strong>cannot be changed</strong>.</li>
+                <li>Do not share your login credentials with anyone.</li>
+                <li>Vote honestly and responsibly for deserving candidates.</li>
+            </ul>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-check mt-4">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="agree"
+                        required
+                    >
+
+                    <label class="form-check-label" for="agree">
+                        I have read and understood the election guidelines and agree to proceed.
+                    </label>
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-success mt-4 float-end">
+                    Continue to Voting →
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

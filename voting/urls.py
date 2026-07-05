@@ -28,5 +28,6 @@ urlpatterns = [
     path("export-results-pdf/", views.export_results_pdf, name="export_results_pdf"),
     path("vote-success/",views.vote_success,name="vote_success"),
     path("student-logout/",views.student_logout,name="student_logout"),
+    path("election-guidelines/",views.election_guidelines,name="election_guidelines"),
 
 ]

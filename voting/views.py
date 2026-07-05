@@ -36,7 +36,7 @@ def student_login(request):
             if check_password(password, student.password):
                 request.session["student_id"] = student.id
                 request.session["votes"] = {}
-                return redirect("student_candidates")
+                return redirect("election_guidelines")
 
             else:
                 messages.error(request, "Invalid Password")
@@ -258,6 +258,18 @@ def end_election(request):
     )
 
     return redirect("admin_dashboard")
+
+#Guideliness
+
+def election_guidelines(request):
+
+    if "student_id" not in request.session:
+        return redirect("student_login")
+
+    if request.method == "POST":
+        return redirect("student_candidates")
+
+    return render(request, "student/election_guidelines.html")
 
 # ===========================
 # STUDENT CANDIDATES
