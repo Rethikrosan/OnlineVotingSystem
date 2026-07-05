@@ -333,7 +333,6 @@ def student_candidates(request):
         return redirect("home")
 
     step = int(request.GET.get("step", 0))
-
     if step >= len(positions):
         return redirect("confirm_vote")
 
@@ -471,7 +470,7 @@ from django.db.models import Count
 def election_results(request):
 
     candidates = Candidate.objects.annotate(
-    total_votes=Count("vote")
+        total_votes=Count("vote")
     )
 
     position_order = [
@@ -487,22 +486,17 @@ def election_results(request):
     ]
 
     candidates = sorted(
-     candidates,
+        candidates,
         key=lambda c: (
             position_order.index(c.position),
             -c.total_votes
         )
     )
 
-    # Position winners
-    positions = Candidate.objects.values_list(
-        "position",
-        flat=True
-    ).distinct()
-
+    # Winners in fixed order
     position_winners = {}
 
-    for position in positions:
+    for position in position_order:
 
         position_candidates = Candidate.objects.filter(
             position=position
@@ -524,8 +518,6 @@ def election_results(request):
         "student",
         "candidate"
     )
-
-    # ← PASTE STEP 3 HERE
 
     labels = []
     vote_data = []
