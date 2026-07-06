@@ -324,6 +324,7 @@ def student_candidates(request):
     "Joint Secretary",
     "Treasurer",
     "Cultural",
+    "Sports",
     "Placement",
     "Brand Ambassador",
     ]
