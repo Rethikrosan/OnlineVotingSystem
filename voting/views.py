@@ -135,8 +135,6 @@ def import_students_view(request):
 
             except Exception as e:
 
-                print(e)
-
                 messages.error(
                     request,
                     f"Import Failed: {e}"
