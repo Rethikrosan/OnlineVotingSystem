@@ -27,17 +27,16 @@ def student_login(request):
 
     if request.method == "POST":
 
-        roll = request.POST.get("roll_number")
-        password = request.POST.get("password")
+        roll = request.POST.get("roll_number", "").strip()
+        password = request.POST.get("password", "").strip()
 
         try:
-            student = Student.objects.get(roll_number=roll)
+            student = Student.objects.get(roll_number__iexact=roll)
 
             if check_password(password, student.password):
                 request.session["student_id"] = student.id
                 request.session["votes"] = {}
                 return redirect("election_guidelines")
-
             else:
                 messages.error(request, "Invalid Password")
 
@@ -45,7 +44,6 @@ def student_login(request):
             messages.error(request, "Invalid Roll Number")
 
     return render(request, "student/login.html")
-
 
 # ===========================
 # ADMIN LOGIN
