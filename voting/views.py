@@ -122,14 +122,25 @@ def import_students_view(request):
 
         if form.is_valid():
 
-            total = import_students(
-                request.FILES["excel_file"]
-            )
+            try:
 
-            messages.success(
-                request,
-                f"{total} Students Imported Successfully."
-            )
+                total = import_students(
+                    request.FILES["excel_file"]
+                )
+
+                messages.success(
+                    request,
+                    f"{total} Students Imported Successfully."
+                )
+
+            except Exception as e:
+
+                print(e)
+
+                messages.error(
+                    request,
+                    f"Import Failed: {e}"
+                )
 
     return render(
         request,
@@ -138,8 +149,6 @@ def import_students_view(request):
             "form": form
         }
     )
-
-
 # ===========================
 # ADD CANDIDATE
 # ===========================
