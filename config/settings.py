@@ -135,5 +135,3 @@ MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
-print("DATABASE ENGINE:", DATABASES["default"]["ENGINE"])
-print("DATABASE NAME:", DATABASES["default"]["NAME"])
