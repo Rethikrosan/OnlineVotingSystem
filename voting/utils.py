@@ -1,5 +1,6 @@
 from openpyxl import load_workbook
 from django.contrib.auth.hashers import make_password
+from datetime import datetime
 from .models import Student
 
 
@@ -17,7 +18,14 @@ def import_students(file):
 
         roll = str(row[0]).strip()
         name = str(row[1]).strip()
-        password = str(row[2]).strip()
+
+        password_value = row[2]
+
+        # If the password is a date, convert it to DD-MM-YYYY
+        if isinstance(password_value, datetime):
+            password = password_value.strftime("%d-%m-%Y")
+        else:
+            password = str(password_value).strip()
 
         Student.objects.update_or_create(
             roll_number=roll,
