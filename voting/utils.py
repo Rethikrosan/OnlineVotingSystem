@@ -24,8 +24,17 @@ def import_students(file):
         # If the password is a date, convert it to DD-MM-YYYY
         if isinstance(password_value, datetime):
             password = password_value.strftime("%d-%m-%Y")
+
+        # If it's a number (phone number or numeric password)
+        elif isinstance(password_value, (int, float)):
+            password = str(int(password_value))
+
+        # Otherwise treat it as text
         else:
             password = str(password_value).strip()
+
+        print("PASSWORD:", password)
+        print("TYPE:", type(password))
 
         Student.objects.update_or_create(
             roll_number=roll,
