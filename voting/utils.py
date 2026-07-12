@@ -33,9 +33,6 @@ def import_students(file):
         else:
             password = str(password_value).strip()
 
-        print("PASSWORD:", password)
-        print("TYPE:", type(password))
-
         Student.objects.update_or_create(
             roll_number=roll,
             defaults={
