@@ -70,7 +70,6 @@ def admin_login(request):
 # ===========================
 # ADMIN DASHBOARD
 # ===========================
-
 @login_required(login_url="admin_login")
 def admin_dashboard(request):
 
@@ -79,8 +78,13 @@ def admin_dashboard(request):
     if election is None:
         election = Election.objects.create(is_active=False)
 
-    total_students = Student.objects.count()
-    voted_students = Student.objects.filter(has_voted=True).count()
+    stats = Student.objects.aggregate(
+        total=Count("id"),
+        voted=Count("id", filter=Q(has_voted=True))
+    )
+
+    total_students = stats["total"]
+    voted_students = stats["voted"]
     total_candidates = Candidate.objects.count()
 
     if total_students > 0:
@@ -101,7 +105,6 @@ def admin_dashboard(request):
         "admin_panel/dashboard.html",
         context
     )
-
 # ===========================
 # IMPORT STUDENTS
 # ===========================
@@ -467,13 +470,14 @@ def submit_vote(request):
 
     return redirect("vote_success")
 
-from django.db.models import Count
-
 @login_required
 def election_results(request):
 
-    candidates = Candidate.objects.annotate(
-        total_votes=Count("vote")
+    # Fetch all candidates with vote counts in ONE query
+    candidates = list(
+        Candidate.objects.annotate(
+            total_votes=Count("vote")
+        )
     )
 
     position_order = [
@@ -488,35 +492,40 @@ def election_results(request):
         "Brand Ambassador",
     ]
 
-    candidates = sorted(
-        candidates,
+    # Sort candidates
+    candidates.sort(
         key=lambda c: (
             position_order.index(c.position),
             -c.total_votes
         )
     )
 
-    # Winners in fixed order
+    # Find winners without extra database queries
     position_winners = {}
 
     for position in position_order:
 
-        position_candidates = Candidate.objects.filter(
-            position=position
-        ).annotate(
-            total_votes=Count("vote")
-        ).order_by("-total_votes")
+        position_candidates = [
+            c for c in candidates
+            if c.position == position
+        ]
 
-        if position_candidates.exists():
+        if position_candidates:
 
-            highest_votes = position_candidates.first().total_votes
-
-            winners = position_candidates.filter(
-                total_votes=highest_votes
+            highest_votes = max(
+                c.total_votes
+                for c in position_candidates
             )
+
+            winners = [
+                c
+                for c in position_candidates
+                if c.total_votes == highest_votes
+            ]
 
             position_winners[position] = winners
 
+    # Fetch votes efficiently
     votes_list = Vote.objects.select_related(
         "student",
         "candidate"
@@ -527,12 +536,8 @@ def election_results(request):
         "position"
     )
 
-    labels = []
-    vote_data = []
-
-    for c in candidates:
-        labels.append(c.name)
-        vote_data.append(c.total_votes)
+    labels = [c.name for c in candidates]
+    vote_data = [c.total_votes for c in candidates]
 
     return render(
         request,
@@ -545,7 +550,6 @@ def election_results(request):
             "vote_data": vote_data,
         }
     )
-
 from .models import Vote, Student
 
 @login_required
@@ -573,6 +577,8 @@ from reportlab.lib.pagesizes import A4
 from django.http import HttpResponse
 from .models import Candidate
 
+from django.db.models import Count
+
 def export_results_pdf(request):
 
     response = HttpResponse(content_type='application/pdf')
@@ -582,20 +588,21 @@ def export_results_pdf(request):
     elements = []
 
     styles = getSampleStyleSheet()
-    title = Paragraph("Election Results Report", styles['Title'])
-    elements.append(title)
+    elements.append(Paragraph("Election Results Report", styles['Title']))
     elements.append(Spacer(1, 12))
 
-    candidates = Candidate.objects.only(
-    "name",
-    "position"
-)
+    candidates = Candidate.objects.annotate(
+        total_votes=Count("vote")
+    )
 
     data = [["Name", "Position", "Votes"]]
 
     for c in candidates:
-        votes = c.vote_set.count()
-        data.append([c.name, c.position, str(votes)])
+        data.append([
+            c.name,
+            c.position,
+            str(c.total_votes)
+        ])
 
     table = Table(data)
 
