@@ -316,22 +316,26 @@ def student_candidates(request):
         return redirect("home")
 
     position_order = [
-    "President",
-    "Vice President",
-    "Secretary",
-    "Joint Secretary",
-    "Treasurer",
-    "Cultural",
-    "Sports",
-    "Placement",
-    "Brand Ambassador",
+        "President",
+        "Vice President",
+        "Secretary",
+        "Joint Secretary",
+        "Treasurer",
+        "Cultural",
+        "Sports",
+        "Placement",
+        "Brand Ambassador",
     ]
 
-    # Only include positions that actually have candidates
+    # Optimized: Fetch all available positions in one query
+    available_positions = set(
+        Candidate.objects.values_list("position", flat=True)
+    )
+
     positions = [
         position
         for position in position_order
-        if Candidate.objects.filter(position=position).exists()
+        if position in available_positions
     ]
 
     if not positions:
@@ -339,52 +343,42 @@ def student_candidates(request):
         return redirect("home")
 
     step = int(request.GET.get("step", 0))
+
     if step >= len(positions):
         return redirect("confirm_vote")
 
     position = positions[step]
 
-    candidates = Candidate.objects.filter(
-        position=position
-    )
+    candidates = Candidate.objects.filter(position=position)
 
     if request.method == "POST":
 
         selected_candidate = request.POST.get("candidate")
 
         if not selected_candidate:
-            messages.error(
-                request,
-                "Please select one candidate."
-            )
-            return redirect(
-                f"/student-candidates/?step={step}"
-            )
+            messages.error(request, "Please select one candidate.")
+            return redirect(f"/student-candidates/?step={step}")
 
         votes = request.session.get("votes", {})
-
         votes[position] = selected_candidate
-
         request.session["votes"] = votes
 
-        return redirect(
-            f"/student-candidates/?step={step+1}"
-        )
+        return redirect(f"/student-candidates/?step={step + 1}")
+
     votes = request.session.get("votes", {})
     selected_candidate = votes.get(position)
 
     return render(
-    request,
-    "student/student_candidates.html",
-    {
-        "position": position,
-        "candidates": candidates,
-        "step": step,
-        "last_step": len(positions) - 1,
-        "selected_candidate": selected_candidate,
-    }
-)
-
+        request,
+        "student/student_candidates.html",
+        {
+            "position": position,
+            "candidates": candidates,
+            "step": step,
+            "last_step": len(positions) - 1,
+            "selected_candidate": selected_candidate,
+        },
+    )
 # ===========================
 # CONFIRM VOTE
 # ===========================
@@ -398,17 +392,16 @@ def confirm_vote(request):
 
     votes = request.session.get("votes", {})
 
+    # Fetch all selected candidates in one query
+    candidate_map = Candidate.objects.in_bulk(votes.values())
+
     selected_candidates = []
 
     for position, candidate_id in votes.items():
 
-        candidate = Candidate.objects.get(
-            id=candidate_id
-        )
-
         selected_candidates.append({
             "position": position,
-            "candidate": candidate
+            "candidate": candidate_map[int(candidate_id)]
         })
 
     return render(
@@ -418,7 +411,6 @@ def confirm_vote(request):
             "selected_candidates": selected_candidates
         }
     )
-
 
 # ===========================
 # SUBMIT VOTE
@@ -431,36 +423,41 @@ def submit_vote(request):
     if not student_id:
         return redirect("student_login")
 
-    student = Student.objects.get(
-        id=student_id
-    )
+    student = Student.objects.get(id=student_id)
 
     if student.has_voted:
-
         messages.error(
             request,
             "You have already voted."
         )
-
         return redirect("home")
 
     votes = request.session.get("votes", {})
 
+    # Fetch all selected candidates in one query
+    candidate_map = Candidate.objects.in_bulk(votes.values())
+
+    # Create Vote objects in memory
+    vote_objects = []
+
     for position, candidate_id in votes.items():
 
-        candidate = Candidate.objects.get(
-            id=candidate_id
+        vote_objects.append(
+            Vote(
+                student=student,
+                candidate=candidate_map[int(candidate_id)],
+                position=position
+            )
         )
 
-        Vote.objects.create(
-            student=student,
-            candidate=candidate,
-            position=position
-        )
+    # Insert all votes with one database query
+    Vote.objects.bulk_create(vote_objects)
 
+    # Mark student as voted
     student.has_voted = True
-    student.save()
+    student.save(update_fields=["has_voted"])
 
+    # Clear session
     request.session.pop("votes", None)
 
     messages.success(
@@ -523,6 +520,11 @@ def election_results(request):
     votes_list = Vote.objects.select_related(
         "student",
         "candidate"
+    ).only(
+        "student__roll_number",
+        "student__name",
+        "candidate__name",
+        "position"
     )
 
     labels = []
@@ -584,7 +586,10 @@ def export_results_pdf(request):
     elements.append(title)
     elements.append(Spacer(1, 12))
 
-    candidates = Candidate.objects.all()
+    candidates = Candidate.objects.only(
+    "name",
+    "position"
+)
 
     data = [["Name", "Position", "Votes"]]
 

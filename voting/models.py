@@ -24,7 +24,11 @@ class Candidate(models.Model):
     ("Brand Ambassador", "Brand Ambassador"),
 ]
     name = models.CharField(max_length=100)
-    position = models.CharField(max_length=50, choices=POSITION_CHOICES)
+    position = models.CharField(
+    max_length=50,
+    choices=POSITION_CHOICES,
+    db_index=True
+    )
     photo = models.CharField(max_length=200)
 
     def __str__(self):
@@ -32,9 +36,23 @@ class Candidate(models.Model):
 
 
 class Vote(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    position = models.CharField(max_length=50)
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        db_index=True
+    )
+
+    candidate = models.ForeignKey(
+        Candidate,
+        on_delete=models.CASCADE,
+        db_index=True
+    )
+
+    position = models.CharField(
+        max_length=50,
+        db_index=True
+    )
+
     voted_at = models.DateTimeField(auto_now_add=True)
 
 
